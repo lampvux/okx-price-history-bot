@@ -1,10 +1,7 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import requests 
-from chardet import detect
 from bs4 import BeautifulSoup 
-import okx.MarketData as MarketData
-import okx.Trade as Trade
 import time
 import telebot 
 from telebot import types
@@ -98,12 +95,11 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     a= print(x)
     await update.message.reply_text(f'COIN :{a} to see more data')
 app = ApplicationBuilder().token(f'{TOKEN}').build()
-
 app.add_handler(CommandHandler("hello", hello))
 app.add_handler(CommandHandler("link", url))
 app.add_handler(CommandHandler("help", help))
 app.add_handler(CommandHandler("btc", btc))
-# x= coin()
-# for i in x:    
-#     app.add_handler(CommandHandler("{i}",i))
+x= coin()
+for i in x:    
+    app.add_handler(CommandHandler("{i}",i))
 app.run_polling()
