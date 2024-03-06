@@ -1,0 +1,44 @@
+
+name: Deploy Cloud Function on Merge to Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: '>=363.0.0'
+
+      - name: Install Node.js 20
+        # Adjust package manager commands if needed
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs=20-slim
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Login to Firebase
+        run: firebase login --project ${{ secrets.PROJECT_ID }}
+
+      - name: Deploy Cloud Functions (with Node.js 20 option)   
+        run: |
+          npm install
+          npm run build  # Replace with your build command (e.g., webpack)              
+          firebase deploy --only functions --runtime nodejs20 okx-price-history-chart
+
+env:
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
