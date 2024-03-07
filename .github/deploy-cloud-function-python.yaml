@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - staging
+  pull_request:
+    branches:
+      - staging
 
 jobs:
   deploy:
@@ -26,8 +29,10 @@ jobs:
           pip install -r requirements.txt  # Replace with your requirements file
 
       - name: Deploy Cloud Functions (with Python 3 runtime)
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         run: |
-          firebase deploy --only functions --runtime python37 okx-price-history-chart-python
+          firebase deploy --only functions --runtime python37 okx-price-history-chart-python --token $BOT_TOKEN
 
 env:
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
