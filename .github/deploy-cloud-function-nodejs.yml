@@ -1,5 +1,4 @@
-
-name: Deploy Cloud Function on Merge to Main
+name: Deploy Cloud Function on Release
 
 on:
   push:
@@ -20,7 +19,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          version: '>=363.0.0'
+          version: ">=363.0.0"
 
       - name: Install Node.js 20
         # Adjust package manager commands if needed
@@ -34,11 +33,11 @@ jobs:
       - name: Login to Firebase
         run: firebase login --project ${{ secrets.PROJECT_ID }}
 
-      - name: Deploy Cloud Functions (with Node.js 20 option)   
+      - name: Deploy Cloud Functions (with Node.js 20 option)
         run: |
           npm install
           npm run build  # Replace with your build command (e.g., webpack)              
-          firebase deploy --only functions --runtime nodejs20 okx-price-history-chart
+          firebase deploy --only functions --runtime nodejs20 okx-price-history-chart-node
 
 env:
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}

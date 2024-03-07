@@ -1,0 +1,33 @@
+name: Deploy Cloud Function on Release
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: ">=363.0.0"
+
+      - name: Install dependencies (adjust if needed)
+        run: |
+          pip install -r requirements.txt  # Replace with your requirements file
+
+      - name: Deploy Cloud Functions (with Python 3 runtime)
+        run: |
+          firebase deploy --only functions --runtime python37 okx-price-history-chart-python
+
+env:
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
