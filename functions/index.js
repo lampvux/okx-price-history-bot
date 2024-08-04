@@ -76,8 +76,15 @@ bot.onText(/\/help/, (msg) => {
 });
 bot.onText(/\/BTC/, (msg) => {
   const chatId = msg.chat.id;
-  const helpMessage = "THIS IS PRICE OF BTC LAST 3 DAYS";
-  bot.sendMessage(chatId, helpMessage);
+ try {
+    const CLOUD_FUNCTION_URL ='https://us-central1-okx-pricing-history-chart.cloudfunctions.net/price'
+    const response = await axios.get(CLOUD_FUNCTION_URL);
+    const priceData = response.data[0];
+    const message = `BTC Price: ${priceData}`;
+    bot.sendMessage(chatId, message);
+  } catch (error) {
+    bot.sendMessage(chatId, 'Error fetching BTC price.');
+  }
 });
 
 
