@@ -1,12 +1,3 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *  const URL_TELEGRAM_WEBHOOK = 'https://api.telegram.org/bot{TOKEN}/';
-//  const URL_GET_OHLC="https://www.okx.com/api/v5/market/history-mark-price-candles?instId=BTC-USDT&bar=1m&limit=100&after=";
-//  const URL_GETCOIN="https://www.okx.com/api/v5/rubik/stat/trading-data/support-coin";
- */
 require("dotenv").config();
 const axios = require("axios");
 const {onRequest} = require("firebase-functions/v2/https");
@@ -87,4 +78,18 @@ bot.onText(/\/BTC/, (msg) => {
   const chatId = msg.chat.id;
   const helpMessage = "THIS IS PRICE OF BTC LAST 3 DAYS";
   bot.sendMessage(chatId, helpMessage);
+});
+
+
+bot.onText(/\/BTC/, async (msg) => {
+  const chatId = msg.chat.id;
+  try {
+    const CLOUD_FUNCTION_URL ='https://us-central1-okx-pricing-history-chart.cloudfunctions.net/price'
+    const response = await axios.get(CLOUD_FUNCTION_URL);
+    const priceData = response.data[0];
+    const message = `BTC Price: ${priceData}`;
+    bot.sendMessage(chatId, message);
+  } catch (error) {
+    bot.sendMessage(chatId, 'Error fetching BTC price.');
+  }
 });
