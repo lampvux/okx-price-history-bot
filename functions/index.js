@@ -1,3 +1,4 @@
+var bodyParser = require('body-parser');
 require("dotenv").config();
 const axios = require("axios");
 const {onRequest} = require("firebase-functions/v2/https");
@@ -7,9 +8,25 @@ const {initializeApp} = require("firebase-admin/app");
 require("firebase-admin/firestore");
 const TelegramBot = require("node-telegram-bot-api");
 const token = process.env.TOKEN;
-const bot = new TelegramBot(token, {polling: true});
+const express = require('express');
 initializeApp();
-require("dotenv").config();
+
+
+const webhookUrl = `https://us-central1-okx-pricing-history-chart.cloudfunctions.net/price`;
+const app = express();
+app.use(bodyParser.json());
+const bot = new TelegramBot(token, {polling: true});
+axios.post(`https://api.telegram.org/bot${token}/setWebhook`, {
+  url: webhookUrl,
+  max_connections: 100
+})
+.then(response => {
+  console.log('Webhook set:', response.data);
+})
+.catch(error => {
+  console.error('Error setting webhook:', error.response ? error.response.data : error.message);
+});
+
 const convertArray = (arr) => arr.map((innerArray) =>
   innerArray.map((item) => {
     const number = parseFloat(item);
@@ -74,23 +91,18 @@ bot.onText(/\/help/, (msg) => {
   const helpMessage = "Here are the available commands:" + help;
   bot.sendMessage(chatId, helpMessage);
 });
-bot.onText(/\/BTC/, (msg) => {
+bot.onText(/\/coins/, (msg) => {
+  const chatId = msg.chat.id;
+  let name_coins = [];
+  axios.get('https://us-central1-okx-pricing-history-chart.cloudfunctions.net/coins')
+  .then( (res)=> {name_coins = res.data })
+  .catch ((err)=>{console.log(err)})
+  const coins = "Top 10 coins " + name_coins;
+  bot.sendMessage(chatId, coins);
+});
+bot.onText(/\/BTC/,async (msg) => {
   const chatId = msg.chat.id;
  try {
-    const CLOUD_FUNCTION_URL ='https://us-central1-okx-pricing-history-chart.cloudfunctions.net/price'
-    const response = await axios.get(CLOUD_FUNCTION_URL);
-    const priceData = response.data[0];
-    const message = `BTC Price: ${priceData}`;
-    bot.sendMessage(chatId, message);
-  } catch (error) {
-    bot.sendMessage(chatId, 'Error fetching BTC price.');
-  }
-});
-
-
-bot.onText(/\/BTC/, async (msg) => {
-  const chatId = msg.chat.id;
-  try {
     const CLOUD_FUNCTION_URL ='https://us-central1-okx-pricing-history-chart.cloudfunctions.net/price'
     const response = await axios.get(CLOUD_FUNCTION_URL);
     const priceData = response.data[0];
