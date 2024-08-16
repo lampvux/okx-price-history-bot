@@ -20,6 +20,7 @@
     "express": "^4.19.2",
     "firebase-admin": "^11.8.0",
     "firebase-functions": "^4.3.1",
+    "highcharts-export-server": "^4.0.2",
     "node-telegram-bot-api": "^0.66.0",
     "path": "^0.12.7",
     "telegraf": "^4.16.3"
