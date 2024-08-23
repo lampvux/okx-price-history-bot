@@ -86,7 +86,7 @@ getOhlvc().then(()=>{
             }
         },
         exporting: {
-            enabled: true, // Enable export button on the chart
+            enabled: true, 
         },
        
 
